@@ -1,7 +1,12 @@
 import axiosInstance from "./axiosInstance";
 
-export const signupUser = async (data) => {
-  const res = await axiosInstance.post("/auth/signup", data);
+export const sendOtp = async (data) => {
+  const res = await axiosInstance.post("/auth/signup/initiate", data);
+  return res.data;
+};
+
+export const verifyOtp = async (data) => {
+  const res = await axiosInstance.post("/auth/signup/verify", data);
   return res.data;
 };
 
@@ -18,14 +23,3 @@ export const getCurrentUser = async () => {
 export const logoutUser = async () => {
   await axiosInstance.post("/auth/logout");
 }
-
-export const sendOtp = async (data) => {
-  const res = await axiosInstance.post("/auth/send-otp", data);
-  return res.data;
-};
-
-export const verifyOtp = async (data) => {
-  const res = await axiosInstance.post("/auth/verify-otp", data);
-  return res.data;
-};
-

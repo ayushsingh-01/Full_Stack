@@ -1,45 +1,55 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+
+const normalizeRole = (value) => {
+  if (typeof value !== "string") {
+    return "user";
+  }
+
+  const normalized = value.trim().toLowerCase();
+  return normalized === "admin" ? "admin" : "user";
+};
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      default: null,
+      required: true,
+      trim: true
     },
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
+      lowercase: true
     },
     password: {
       type: String,
-      default: null,
-    },
-    otp: {
-      type: String,
-      default: null,
-    },
-    otpExpiry: {
-      type: Date,
-      default: null,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
+      required: true,
+      minlength: 8,
+      select: false 
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["admin", "user"],
       default: "user",
+      set: normalizeRole
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
+    tokens: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-export default User;
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const saltRounds = 10;
+  this.password = await bcrypt.hash(this.password, saltRounds);
+
+});
+
+export default mongoose.models.User || mongoose.model("User", userSchema);

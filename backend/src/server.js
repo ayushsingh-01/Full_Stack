@@ -1,26 +1,39 @@
+import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import { createServer } from "http";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import assetRoutes from "./routes/assetRoute.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import { initializeSocket } from "./socket/socket.js";
+
 dotenv.config();
 
-import express from "express";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import connectDB from "./config/db.js";
-import authRoute from "./routes/authRoutes.js";
-
 connectDB();
+
 const app = express();
-const PORT = process.env.PORT || 5000;
+const httpServer = createServer(app);
+
+// Initialize Socket.IO
+const io = initializeSocket(httpServer);
 
 app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
+    origin: process.env.CLIENT_URL,
+    credentials: true
 }));
 
-app.use("/api/auth", authRoute);
+app.use("/api/auth", authRoutes);
+app.use("/api/assets", assetRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/payment", paymentRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+httpServer.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+    console.log(`Socket.IO initialized on port ${process.env.PORT}`);
 });

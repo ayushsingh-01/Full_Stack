@@ -2,20 +2,20 @@ import express from "express";
 import {
   initiateSignup,
   verifySignupOtp,
+  login,
+  getCurrentUser,
+  logout
 } from "../controllers/authController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- * POST /api/auth/signup/initiate
- * Initiate signup by sending OTP to email
- */
+
 router.post("/signup/initiate", initiateSignup);
 
-/**
- * POST /api/auth/signup/verify
- * Verify OTP and complete signup
- */
 router.post("/signup/verify", verifySignupOtp);
+router.post("/login", login);
+router.get("/me", authMiddleware, getCurrentUser);
+router.post("/logout", logout);
 
 export default router;
