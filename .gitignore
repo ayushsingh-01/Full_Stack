@@ -37,3 +37,7 @@ coverage/
 *.orig
 .cache/
 .parcel-cache/
+
+# Local reference repos (do not track)
+__repo_ref/
+__upstream_check/
